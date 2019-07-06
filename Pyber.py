@@ -22,7 +22,6 @@ ride=ride.merge(city, how="left", on="city")
 ride.head()
 
 
-
 # Obtain the x and y coordinates for each of the three city types
 ## Obtaining the Total Number of rides per city types 
 tRide=pd.DataFrame(ride.groupby(["type", "city"]).count()["ride_id"]).reset_index()
@@ -78,15 +77,17 @@ plt.show()
 ##### Total Fares by City Type
 # Calculate Type Percents
 ride["ride"]=1
-piDB=pd.DataFrame(ride.groupby("type").sum()[["fare", "driver_count", "ride"]]).reset_index()
+piDB_fare=pd.DataFrame(ride.groupby("type").sum()[["fare"]]).reset_index()
 # Build Pie Chart
 explode=[]
-for ex in piDB["fare"]:
-    if (ex==max(piDB["fare"])):
+for ex in piDB_fare["fare"]:
+    if (ex==max(piDB_fare["fare"])):
         explode.append(0.1)
     else:
         explode.append(0)
-plt.pie(piDB["fare"], explode=explode, labels=piDB["type"], colors=colors["color"],
+plt.pie(piDB_fare["fare"], explode=explode,
+        labels=piDB_fare["type"]+" ("+pd.DataFrame(piDB_fare)["fare"].map("{:,.0f}".format).map(str)+")",
+        colors=colors["color"],
         autopct="%1.1f%%", shadow=True, startangle=90)
 plt.axis("equal")
 plt.title("Pyber Ride's Total Fare (2016)")
@@ -97,14 +98,17 @@ plt.savefig("Pyber_farePie.png")
 
 ## Total Rides Per City Type
 # Calculate Ride Percents
+piDB_ride=pd.DataFrame(ride.groupby("type").sum()[["ride"]]).reset_index()
 # Build Pie Chart
 explode=[]
-for ex in piDB["ride"]:
-    if (ex==max(piDB["ride"])):
+for ex in piDB_ride["ride"]:
+    if (ex==max(piDB_ride["ride"])):
         explode.append(0.1)
     else:
         explode.append(0)
-plt.pie(piDB["ride"], explode=explode, labels=piDB["type"], colors=colors["color"],
+plt.pie(piDB_ride["ride"], explode=explode,
+        labels=piDB_ride["type"]+" ("+pd.DataFrame(piDB_ride)["ride"].map("{:,.0f}".format).map(str)+")",
+        colors=colors["color"],
         autopct="%1.1f%%", shadow=True, startangle=90)
 plt.axis("equal")
 plt.title("Pyber Total Rides (2016)")
@@ -112,19 +116,24 @@ plt.show()
 # Save Figure
 plt.savefig("Pyber_raidsPie.png")
 
-## Total Rides Per City Type
+## Total Drivers Per City Type
 # Calculate Ride Percents
+piDB_driver=pd.DataFrame(ride.groupby(["city","type"]).mean()[["driver_count"]]).reset_index()
+piDB_driver=pd.DataFrame(ride.groupby("type").sum()[["driver_count"]]).reset_index()
+
 # Build Pie Chart
 explode=[]
-for ex in piDB["ride"]:
-    if (ex==max(piDB["ride"])):
+for ex in piDB_driver["driver_count"]:
+    if (ex==max(piDB_driver["driver_count"])):
         explode.append(0.1)
     else:
         explode.append(0)
-plt.pie(piDB["ride"], explode=explode, labels=piDB["type"], colors=colors["color"],
+plt.pie(piDB_driver["driver_count"], explode=explode,
+        labels=piDB_driver["type"]+" ("+pd.DataFrame(piDB_driver)["driver_count"].map("{:,.0f}".format).map(str)+")",
+        colors=colors["color"],
         autopct="%1.1f%%", shadow=True, startangle=90)
 plt.axis("equal")
-plt.title("Pyber Total Rides (2016)")
+plt.title("Pyber Total Drivers per City Type (2016)")
 plt.show()
 # Save Figure
-plt.savefig("Pyber_farePie.png")
+plt.savefig("Pyber_driverPie.png")
